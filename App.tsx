@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { SettingsIcon, HistoryIcon, XIcon, CalendarIcon, ExitIcon } from './components/icons/Icons';
+import { SettingsIcon, HistoryIcon, XIcon, CalendarIcon } from './components/icons/Icons';
 import { SetHistory } from './components/SetHistory';
 import { SettingsModal } from './components/SettingsModal';
 import { WorkoutSummary } from './components/WorkoutSummary';
@@ -7,15 +7,12 @@ import { SaveWorkoutModal } from './components/SaveWorkoutModal';
 import { HistoryCalendar } from './components/HistoryCalendar';
 import { AdPage } from './components/AdPage';
 import { VKAdsBanner } from './components/VKAdsBanner';
-import { VKAdsNative } from './components/VKAdsNative';
 import { useWakeLock } from './hooks/useWakeLock';
 import { useAudio } from './hooks/useAudio';
 import { useSpeech } from './hooks/useSpeech';
 import { BEEP_SOUND_URL, GONG_SOUND_URL, TICK_SOUND_URL, START_SET_SOUND_URL } from './constants';
 import type { WorkoutPhase, Set, SavedWorkout, AppSettings } from './types';
 import { PHASE } from './types';
-import { App as CapacitorApp } from '@capacitor/app';
-import { ExitApp } from './src/plugins/ExitApp';
 
 const locales = {
   en: 'English',
@@ -387,33 +384,6 @@ export default function App() {
     setShowAdPage(true);
   }
 
-  const handleExitApp = async () => {
-    try {
-      // Прямой вызов через JavaScript Interface (работает даже если androidBridge не готов)
-      if (Capacitor.isNativePlatform() && (window as any).AndroidInterface) {
-        (window as any).AndroidInterface.exitApp();
-        return;
-      }
-      
-      // Fallback: используем стандартный CapacitorApp.exitApp()
-      await CapacitorApp.exitApp();
-    } catch (error) {
-      console.error('Error exiting app:', error);
-      // Fallback: пробуем кастомный плагин
-      try {
-        if (Capacitor.isNativePlatform()) {
-          await ExitApp.exit();
-        }
-      } catch (pluginError) {
-        console.error('Error with ExitApp plugin:', pluginError);
-        // Последний fallback для веб-версии
-        if (window) {
-          window.close();
-        }
-      }
-    }
-  }
-
   const handleSaveWorkout = (name: string, comment: string) => {
     if (!completedWorkout) return;
 
@@ -488,18 +458,9 @@ export default function App() {
         <h1 className="text-xl font-bold text-gray-400">{t('workoutTimer')}</h1>
         <div className="flex items-center gap-2">
             {phase === PHASE.IDLE && (
-              <>
-                <button onClick={() => setShowCalendar(true)} className="p-2 text-gray-400 hover:text-white transition-colors" title={t('workoutHistory')}>
-                  <CalendarIcon />
-                </button>
-                <button 
-                  onClick={handleExitApp} 
-                  className="p-2 text-gray-400 hover:text-red-400 transition-colors"
-                  title={t('exitApp')}
-                >
-                  <ExitIcon />
-                </button>
-              </>
+              <button onClick={() => setShowCalendar(true)} className="p-2 text-gray-400 hover:text-white transition-colors" title={t('workoutHistory')}>
+                <CalendarIcon />
+              </button>
             )}
             <button onClick={() => setShowHistory(true)} className="p-2 text-gray-400 hover:text-white transition-colors" title={t('history')}>
               <HistoryIcon />

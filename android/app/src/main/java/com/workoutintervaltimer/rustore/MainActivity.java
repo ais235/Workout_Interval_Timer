@@ -138,7 +138,19 @@ public class MainActivity extends BridgeActivity {
     }
 
     public void exitApp() {
-        finishAffinity();
-        System.exit(0);
+        runOnUiThread(() -> {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    finishAndRemoveTask();
+                } else {
+                    finish();
+                }
+
+                moveTaskToBack(true);
+            } finally {
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(0);
+            }
+        });
     }
 }

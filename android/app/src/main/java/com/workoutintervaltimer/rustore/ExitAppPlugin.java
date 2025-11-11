@@ -11,15 +11,24 @@ public class ExitAppPlugin extends Plugin {
 
     @PluginMethod
     public void exit(PluginCall call) {
-        MainActivity activity = (MainActivity) getActivity();
-        if (activity != null) {
-            // Вызываем exitApp в UI потоке
-            activity.runOnUiThread(() -> {
-                activity.exitApp();
-            });
+        android.app.Activity activity = getActivity();
+        if (activity == null) {
+            call.reject("Activity is not available");
+            return;
         }
-        // Важно: вызываем resolve ДО закрытия приложения
-        call.resolve();
+
+        android.app.Activity finalActivity = activity;
+        activity.runOnUiThread(() -> {
+            // Сообщаем в JavaScript об успешном вызове
+            call.resolve();
+
+            if (finalActivity instanceof MainActivity) {
+                ((MainActivity) finalActivity).exitApp();
+            } else {
+                finalActivity.finishAffinity();
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        });
     }
 }
 
