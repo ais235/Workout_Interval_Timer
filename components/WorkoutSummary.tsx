@@ -20,7 +20,11 @@ export const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({ sets, totalWorko
   const totalSetTime = sets.reduce((acc, set) => acc + set.duration, 0);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-gray-900 text-white p-4 font-sans items-center justify-center">
+    <div className="flex flex-col h-screen w-screen bg-gray-900 text-white font-sans">
+      {/* Безопасная область сверху для Android/iOS */}
+      <div className="safe-area-inset-top bg-gray-900 w-full"></div>
+      
+      <div className="flex flex-col flex-1 p-4 items-center justify-center overflow-hidden">
       <div className="bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md text-center">
         <h2 className="text-3xl font-bold text-green-400 mb-4">{t('workoutComplete')}</h2>
         <p className="text-gray-400 mb-6">{t('summaryOfSets')}</p>
@@ -64,6 +68,7 @@ export const WorkoutSummary: React.FC<WorkoutSummaryProps> = ({ sets, totalWorko
                 {t('startNewWorkout')}
             </button>
         </div>
+      </div>
       </div>
     </div>
   );

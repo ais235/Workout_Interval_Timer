@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { XIcon } from './icons/Icons';
-import type { AppSettings, EndSound } from '../types';
+import type { AppSettings } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -17,14 +17,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, c
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [targetSets, setTargetSets] = useState(0);
-  const [sound, setSound] = useState<EndSound>('beep');
 
   useEffect(() => {
     if (isOpen) {
         setMinutes(Math.floor(currentSettings.restDuration / 60));
         setSeconds(currentSettings.restDuration % 60);
         setTargetSets(currentSettings.targetSets);
-        setSound(currentSettings.endSound);
     }
   }, [isOpen, currentSettings]);
 
@@ -36,34 +34,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, c
         onSave({
             restDuration: totalSeconds,
             targetSets: targetSets,
-            endSound: sound
+            endSound: currentSettings.endSound // Keep existing sound setting
         });
     }
   };
   
-  const handleMinuteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.target.value, 10);
-    setMinutes(isNaN(val) ? 0 : Math.max(0, val));
-  };
-  
-  const handleSecondChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = parseInt(e.target.value, 10);
-    if (isNaN(val)) val = 0;
-    if (e.target.value.length > 2) {
-        val = parseInt(e.target.value.slice(-2), 10);
-    }
-    setSeconds(Math.max(0, Math.min(59, val)));
-  };
-
-  const handleTargetSetsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.target.value, 10);
-    setTargetSets(isNaN(val) ? 0 : Math.max(0, val));
-  };
 
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-sm overflow-y-auto max-h-full">
+    <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex flex-col">
+      {/* Безопасная область сверху для Android/iOS */}
+      <div className="safe-area-inset-top bg-transparent w-full"></div>
+      
+      <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-sm">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">{t('settings')}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
@@ -76,41 +60,75 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, c
               <label className="block text-lg font-medium text-gray-300 mb-2">{t('restTime')}</label>
               <div className="flex items-center gap-4 bg-gray-900 p-4 rounded-lg">
                 <div className="flex-1">
-                  <input type="number" value={minutes} onChange={handleMinuteChange} className="w-full bg-transparent text-white text-4xl font-bold text-center outline-none" min="0"/>
-                  <p className="text-gray-400 text-center text-sm">{t('minutes')}</p>
+                  <div className="flex flex-col items-center">
+                    <button 
+                      onClick={() => setMinutes(prev => Math.min(99, prev + 1))}
+                      className="w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded-lg text-2xl font-bold text-white mb-2 transition-colors"
+                    >
+                      +
+                    </button>
+                    <div className="text-white text-4xl font-bold text-center min-h-[3rem] flex items-center justify-center">
+                      {minutes.toString().padStart(2, '0')}
+                    </div>
+                    <button 
+                      onClick={() => setMinutes(prev => Math.max(0, prev - 1))}
+                      className="w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded-lg text-2xl font-bold text-white mt-2 transition-colors"
+                    >
+                      −
+                    </button>
+                  </div>
+                  <p className="text-gray-400 text-center text-sm mt-2">{t('minutes')}</p>
                 </div>
                 <span className="text-4xl font-bold text-gray-500">:</span>
-                 <div className="flex-1">
-                  <input type="number" value={seconds.toString().padStart(2, '0')} onChange={handleSecondChange} className="w-full bg-transparent text-white text-4xl font-bold text-center outline-none" min="0" max="59"/>
-                  <p className="text-gray-400 text-center text-sm">{t('seconds')}</p>
+                <div className="flex-1">
+                  <div className="flex flex-col items-center">
+                    <button 
+                      onClick={() => setSeconds(prev => {
+                        const newVal = prev + 1;
+                        return newVal >= 60 ? 0 : newVal;
+                      })}
+                      className="w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded-lg text-2xl font-bold text-white mb-2 transition-colors"
+                    >
+                      +
+                    </button>
+                    <div className="text-white text-4xl font-bold text-center min-h-[3rem] flex items-center justify-center">
+                      {seconds.toString().padStart(2, '0')}
+                    </div>
+                    <button 
+                      onClick={() => setSeconds(prev => {
+                        const newVal = prev - 1;
+                        return newVal < 0 ? 59 : newVal;
+                      })}
+                      className="w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded-lg text-2xl font-bold text-white mt-2 transition-colors"
+                    >
+                      −
+                    </button>
+                  </div>
+                  <p className="text-gray-400 text-center text-sm mt-2">{t('seconds')}</p>
                 </div>
               </div>
             </div>
 
             <div>
                 <label className="block text-lg font-medium text-gray-300 mb-2">{t('targetSets')}</label>
-                 <div className="flex items-center gap-4 bg-gray-900 p-4 rounded-lg">
-                    <input
-                        type="number"
-                        value={targetSets}
-                        onChange={handleTargetSetsChange}
-                        className="w-full bg-transparent text-white text-4xl font-bold text-center outline-none"
-                        min="0"
-                    />
+                 <div className="flex items-center justify-center gap-4 bg-gray-900 p-4 rounded-lg">
+                    <button 
+                      onClick={() => setTargetSets(prev => Math.max(0, prev - 1))}
+                      className="w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded-lg text-2xl font-bold text-white transition-colors"
+                    >
+                      −
+                    </button>
+                    <div className="text-white text-4xl font-bold text-center min-w-[4rem] min-h-[3rem] flex items-center justify-center">
+                      {targetSets === 0 ? '∞' : targetSets}
+                    </div>
+                    <button 
+                      onClick={() => setTargetSets(prev => Math.min(999, prev + 1))}
+                      className="w-12 h-12 bg-gray-700 hover:bg-gray-600 rounded-lg text-2xl font-bold text-white transition-colors"
+                    >
+                      +
+                    </button>
                  </div>
                  <p className="text-gray-400 text-center text-sm mt-1">{targetSets === 0 ? t('infinite') : `${targetSets} ${t('set')}`}</p>
-            </div>
-
-            <div>
-                <label className="block text-lg font-medium text-gray-300 mb-2">{t('endOfRestSound')}</label>
-                <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => setSound('beep')} className={`py-3 px-3 rounded-md text-base font-semibold transition-colors ${sound === 'beep' ? 'bg-green-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}>
-                        {t('beep')}
-                    </button>
-                    <button onClick={() => setSound('voice')} className={`py-3 px-3 rounded-md text-base font-semibold transition-colors ${sound === 'voice' ? 'bg-green-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}>
-                        {t('voice')}
-                    </button>
-                </div>
             </div>
 
             <div>
@@ -131,6 +149,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, c
         >
           {t('saveSettings')}
         </button>
+      </div>
       </div>
     </div>
   );

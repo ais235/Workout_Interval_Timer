@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Workout Interval Timer</string>
+    <string name="title_activity_main">Workout Interval Timer</string>
+    <string name="package_name">com.workoutintervaltimer.rustore</string>
+    <string name="custom_url_scheme">com.workoutintervaltimer.rustore</string>
+</resources>

@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
@@ -22,3 +23,24 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/keystore.properties
+*.keystore
+*.jks
+android/app/release/
+android/app/debug/
+bash.exe.stackdump
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS
+Thumbs.db
+.DS_Store

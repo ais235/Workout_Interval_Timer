@@ -6,9 +6,17 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "fix-plugins": "node scripts/fix-plugins.cjs",
+    "cap:sync": "npm run build && npx cap sync android && npm run fix-plugins",
+    "cap:open": "npx cap open android",
+    "cap:build": "cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/app": "^7.1.0",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

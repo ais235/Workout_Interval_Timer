@@ -32,7 +32,11 @@ export const SaveWorkoutModal: React.FC<SaveWorkoutModalProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex flex-col">
+      {/* Безопасная область сверху для Android/iOS */}
+      <div className="safe-area-inset-top bg-transparent w-full"></div>
+      
+      <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-sm">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">{t('saveWorkout')}</h2>
@@ -83,6 +87,7 @@ export const SaveWorkoutModal: React.FC<SaveWorkoutModalProps> = ({ isOpen, onCl
             {t('save')}
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
